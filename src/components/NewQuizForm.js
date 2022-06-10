@@ -1,32 +1,52 @@
-import React, { useState } from "react";
-import { useHistory } from "react-router-dom";
-import { v4 as uuidv4 } from "uuid";
-import ROUTES from "../app/routes";
+import React, { useState } from 'react';
+import { useSelector } from 'react-redux';
+import { useHistory } from 'react-router-dom';
+import { v4 as uuidv4 } from 'uuid';
+import ROUTES from '../app/routes';
+import { selectTopics } from '../features/topics/topicsSlice';
+import { quizCreator } from '../features/quizzes/quizzesSlice';
+import { useDispatch } from 'react-redux';
+import { addCard } from '../features/cards/cardsSlice';
 
 export default function NewQuizForm() {
-  const [name, setName] = useState("");
+  const [name, setName] = useState('');
   const [cards, setCards] = useState([]);
-  const [topicId, setTopicId] = useState("");
+  const [topicId, setTopicId] = useState('');
   const history = useHistory();
-  const topics = {};
+  const topics = useSelector(selectTopics);
+  const dispatch = useDispatch();
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (name.length === 0) {
       return;
     }
-
     const cardIds = [];
-
     // create the new cards here and add each card's id to cardIds
+    //cards objects array has already been unpacked from state as "cards", need to generate uuid and push that to index of ids, dispatach action to add card at given cardID
+    cards.forEach((card) => {
+      let cardId = uuidv4();
+      cardIds.push(cardId);
+      dispatch(addCard({ ...card, id: cardId }));
+    });
+
     // create the new quiz here
+    let tempQuizId = uuidv4();
+    dispatch(
+      quizCreator({
+        id: tempQuizId,
+        name: name,
+        topicId: topicId,
+        cardIds: cardIds,
+      })
+    );
 
     history.push(ROUTES.quizzesRoute());
   };
 
   const addCardInputs = (e) => {
     e.preventDefault();
-    setCards(cards.concat({ front: "", back: "" }));
+    setCards(cards.concat({ front: '', back: '' }));
   };
 
   const removeCard = (e, index) => {
@@ -68,7 +88,7 @@ export default function NewQuizForm() {
               id={`card-front-${index}`}
               value={cards[index].front}
               onChange={(e) =>
-                updateCardState(index, "front", e.currentTarget.value)
+                updateCardState(index, 'front', e.currentTarget.value)
               }
               placeholder="Front"
             />
@@ -77,7 +97,7 @@ export default function NewQuizForm() {
               id={`card-back-${index}`}
               value={cards[index].back}
               onChange={(e) =>
-                updateCardState(index, "back", e.currentTarget.value)
+                updateCardState(index, 'back', e.currentTarget.value)
               }
               placeholder="Back"
             />
