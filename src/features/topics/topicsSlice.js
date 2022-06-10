@@ -15,7 +15,7 @@ export const topicsSlice = createSlice({
       state.topics[id] = {
         id: id,
         name: name,
-        icon: icon,
+        icon,
         quizIds: []
       };
     }
